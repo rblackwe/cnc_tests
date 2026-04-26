@@ -1,19 +1,19 @@
 %
 ; ============================================================
-; [JOB:FIT-TEST]
+; [JOB:PRODUCTION-HOLES]
 ; [TOOL:THE-BEAST-1_4-ROUGHING-UPCUT]
 ; [DATE:2026-04-26]
 ; [MATERIAL:UNKNOWN]
-; [REVISION:1]
+; [REVISION:2]
 ; ============================================================
-; PURPOSE: Cut 5 test holes incrementally larger from 0.501"
-;          to 0.505" in 0.001" steps to find snug fit diameter
-;          for a target nominal 0.5" part.
+; PURPOSE: Cut 5 holes all at 0.505" diameter, 0.510" deep.
+;          0.505" confirmed best snug fit from test run.
+;          Depth increased from 0.1" to 0.510" (just over 1/2")
+;          Single pass - within Beast's 0.75" stepdown limit.
 ;
-; STRATEGY: Tool center is offset inward by tool radius (0.125")
-;           from desired hole wall. Each hole increases the tool
-;           path radius by 0.0005" to produce 0.001" more diameter.
-;           Holes are spaced 1" apart along X axis.
+; STRATEGY: Tool center offset inward by tool radius (0.125")
+;           from desired hole wall gives tool path radius of 0.1275"
+;           Holes spaced 1" apart along X axis.
 ;           Z is left at cutting depth after last hole.
 ;           Machine returns to XY start after all holes are cut.
 ;
@@ -30,21 +30,32 @@
 ;   [SETTING:SPINDLE]   22000 RPM
 ;   [SETTING:FEED]      100 in/min
 ;   [SETTING:PLUNGE]    80 in/min
-;   [SETTING:DEPTH]     0.1 in
-;   [SETTING:STEPDOWN]  0.75 in
+;   [SETTING:DEPTH]     0.510 in  <-- updated from 0.1"
+;   [SETTING:STEPDOWN]  0.75 in   (0.510" fits in single pass)
 ;   [SETTING:STEPOVER]  0.2 in
 ;   [SETTING:CHIPLOAD]  0.0015 in
 ;
 ; HOLE SUMMARY:
-;   [HOLE:1] Diameter 0.501" | Tool path radius 0.1255" | X offset 0"
-;   [HOLE:2] Diameter 0.502" | Tool path radius 0.1260" | X offset 1"
-;   [HOLE:3] Diameter 0.503" | Tool path radius 0.1265" | X offset 2"
-;   [HOLE:4] Diameter 0.504" | Tool path radius 0.1270" | X offset 3"
-;   [HOLE:5] Diameter 0.505" | Tool path radius 0.1275" | X offset 4"
+;   [HOLE:1] Diameter 0.505" | Depth 0.510" | X offset 0"
+;   [HOLE:2] Diameter 0.505" | Depth 0.510" | X offset 1"
+;   [HOLE:3] Diameter 0.505" | Depth 0.510" | X offset 2"
+;   [HOLE:4] Diameter 0.505" | Depth 0.510" | X offset 3"
+;   [HOLE:5] Diameter 0.505" | Depth 0.510" | X offset 4"
+;
+; DIAMETER MATH:
+;   Target diameter:  0.505"
+;   Tool diameter:    0.250"
+;   Tool radius:      0.125"
+;   Tool path radius: (0.505 / 2) - 0.125 = 0.1275"
+;
+; DEPTH MATH:
+;   Target depth:     0.510" (just over 1/2")
+;   Beast stepdown:   0.750" (single pass is safe)
+;   Beast flute len:  1.000" (0.510" well within flute length)
 ;
 ; SPACE REQUIRED: 5" clear in X from start position
 ;
-; NOTE: Z is intentionally left at cutting depth (-0.1") after
+; NOTE: Z is intentionally left at cutting depth (-0.510") after
 ;       last hole. Raise Z manually before repositioning.
 ; ============================================================
 
@@ -54,110 +65,95 @@ O0001
 G20   ; Work in inches (not mm)
 G90   ; Start in absolute mode for clarity
 G91   ; Switch to relative/incremental mode for all moves below
-      ; G91 means every coordinate is relative to current position
-      ; This makes it easy to space holes and return to start
 
-S22000  ; Set spindle speed to 22000 RPM (The Beast's rated speed)
+S22000  ; Set spindle speed to 22000 RPM
 M3      ; Spindle ON, clockwise rotation
-G4 P2   ; Dwell/wait 2 seconds to let spindle reach full speed
-        ; Skipping this risks cutting before RPM is stable
+G4 P2   ; Dwell 2 seconds to let spindle reach full speed
 
 
 ; ============================================================
-; [HOLE:1] TARGET DIAMETER: 0.501"
-; Tool path radius = (0.501 / 2) - 0.125 tool radius = 0.1255"
-; This is the tightest hole - try your part here first
+; [HOLE:1] DIAMETER: 0.505" | DEPTH: 0.510" | X OFFSET: 0"
 ; ============================================================
-F80             ; Set plunge feed rate (80 in/min per Beast specs)
-G1 Z-0.1        ; Plunge straight down 0.1 inches into material
-F100            ; Switch to lateral feed rate (100 in/min per Beast specs)
-G1 X0.1255      ; Move right to circle entry point (tool path radius)
-G2 I-0.125 J0  ; Cut full clockwise circle
-                ;   G2 = clockwise arc
-                ;   I-0.1255 = center is 0.1255" to the LEFT of current pos
-                ;   J0 = center has no Y offset
-                ;   No XY endpoint specified = full 360 degree circle
-G1 X-0.1255     ; Return tool center back to hole center
-F80             ; Back to plunge rate for Z move
-G1 Z0.1         ; Lift Z back up (same amount we went down) for safe travel
-F100            ; Reset to feed rate for XY travel
-G1 X1.0         ; Move 1" right to center of next hole
-
-
-; ============================================================
-; [HOLE:2] TARGET DIAMETER: 0.502"
-; Tool path radius = (0.502 / 2) - 0.125 tool radius = 0.1260"
-; ============================================================
+F80             ; Plunge feed rate (80 in/min)
+G1 Z-0.510      ; Plunge down 0.510 inches in one pass
+                ; Safe - within 0.75" stepdown limit
+F100            ; Switch to lateral feed rate (100 in/min)
+G1 X0.1275      ; Move to circle entry point (tool path radius)
+G2 I-0.1275 J0  ; Full clockwise circle - center is 0.1275" left
+G1 X-0.1275     ; Return tool center back to hole center
 F80
-G1 Z-0.1
+G1 Z0.510       ; Lift full depth for safe travel to next hole
 F100
-G1 X0.126
-G2 I-0.126 J0
-G1 X-0.126
-F80
-G1 Z0.1
-F100
-G1 X1.0
+G1 X1.0         ; Move 1" right to next hole center
 
 
 ; ============================================================
-; [HOLE:3] TARGET DIAMETER: 0.503"
-; Tool path radius = (0.503 / 2) - 0.125 tool radius = 0.1265"
+; [HOLE:2] DIAMETER: 0.505" | DEPTH: 0.510" | X OFFSET: 1"
 ; ============================================================
 F80
-G1 Z-0.1
-F100
-G1 X0.1265
-G2 I-0.1265 J0
-G1 X-0.1265
-F80
-G1 Z0.1
-F100
-G1 X1.0
-
-
-; ============================================================
-; [HOLE:4] TARGET DIAMETER: 0.504"
-; Tool path radius = (0.504 / 2) - 0.125 tool radius = 0.1270"
-; ============================================================
-F80
-G1 Z-0.1
-F100
-G1 X0.127
-G2 I-0.127 J0
-G1 X-0.127
-F80
-G1 Z0.1
-F100
-G1 X1.0
-
-
-; ============================================================
-; [HOLE:5] TARGET DIAMETER: 0.505"
-; Tool path radius = (0.505 / 2) - 0.125 tool radius = 0.1275"
-; This is the loosest hole - if your part is still tight here
-; re-run with holes starting at 0.506" 
-; ============================================================
-F80
-G1 Z-0.1        ; Final plunge - Z will stay here after program ends
+G1 Z-0.510
 F100
 G1 X0.1275
 G2 I-0.1275 J0
-G1 X-0.1275     ; Return to center of hole 5
-                ; NOTE: No Z lift here - leaving Z at depth intentionally
+G1 X-0.1275
+F80
+G1 Z0.510
+F100
+G1 X1.0
+
+
+; ============================================================
+; [HOLE:3] DIAMETER: 0.505" | DEPTH: 0.510" | X OFFSET: 2"
+; ============================================================
+F80
+G1 Z-0.510
+F100
+G1 X0.1275
+G2 I-0.1275 J0
+G1 X-0.1275
+F80
+G1 Z0.510
+F100
+G1 X1.0
+
+
+; ============================================================
+; [HOLE:4] DIAMETER: 0.505" | DEPTH: 0.510" | X OFFSET: 3"
+; ============================================================
+F80
+G1 Z-0.510
+F100
+G1 X0.1275
+G2 I-0.1275 J0
+G1 X-0.1275
+F80
+G1 Z0.510
+F100
+G1 X1.0
+
+
+; ============================================================
+; [HOLE:5] DIAMETER: 0.505" | DEPTH: 0.510" | X OFFSET: 4"
+; Last hole - no Z lift, leaving at cutting depth intentionally
+; ============================================================
+F80
+G1 Z-0.510
+F100
+G1 X0.1275
+G2 I-0.1275 J0
+G1 X-0.1275     ; Return to center of last hole, no Z lift
 
 
 ; --- RETURN TO START ---
-; We moved X: 0.1255 - 0.1255 + 1 + 0.126 - 0.126 + 1 + ... = 4.0" total
-; Simply move -4.0" in X to get back to where we started
+; Moved exactly 4.0" in X across 4 inter-hole gaps of 1" each
 ; Y never moved so no Y correction needed
+; Z stays at -0.510" (cutting depth of last hole)
 F100
 G1 X-4.0        ; Return to original XY start position
-                ; Z remains at -0.1" (cutting depth of last hole)
 
 
 ; --- SHUTDOWN ---
 M5    ; Spindle OFF
 G90   ; Restore absolute positioning mode
-M30   ; End program and rewind file pointer to top
+M30   ; End program and rewind
 %
