@@ -1,0 +1,20 @@
+%
+O0001
+; THE BEAST - Move 1" Right and Return
+; Feed Rate: 100 in/min | Plunge: 80 in/min | Spindle: 22000 RPM
+
+G20        ; Inches mode
+G90        ; Absolute mode
+G91        ; Switch to relative positioning
+S22000     ; Spindle speed
+M3         ; Spindle ON
+G4 P2      ; Dwell 2 seconds - let spindle spin up
+F80        ; Plunge rate 80 in/min
+G1 Z-0.1  ; Lower Z 0.1 inches
+F100       ; Switch to feed rate 100 in/min
+G1 X1.0   ; Move 1 inch to the right
+G1 X-1.0  ; Return 1 inch back to start
+M5         ; Spindle OFF
+G90        ; Return to absolute positioning
+M30        ; End program and rewind
+%
