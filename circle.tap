@@ -1,0 +1,23 @@
+%
+O0001
+; THE BEAST - 0.5" Radius Circle, 0.1" Deep
+; Feed Rate: 100 in/min | Plunge: 80 in/min | Spindle: 22000 RPM
+
+G20        ; Inches mode
+G90        ; Absolute mode
+G91        ; Relative positioning
+S22000     ; Spindle speed
+M3         ; Spindle ON
+G4 P2      ; Dwell 2 seconds - let spindle spin up
+F80        ; Plunge rate
+G1 Z-0.1  ; Plunge down 0.1 inches
+F100       ; Feed rate
+G1 X0.5   ; Move to circle start (right side of center)
+G2 I-0.5 J0 ; Full circle clockwise back to start
+G1 X-0.5  ; Return to center
+F80        ; Plunge rate for Z return
+G1 Z0.1   ; Raise Z back to original height
+M5         ; Spindle OFF
+G90        ; Return to absolute positioning
+M30        ; End program and rewind
+%
