@@ -1,0 +1,42 @@
+(===================================)
+(20mm Test Hole - Single Hole      )
+(Tool: SpeTool W04014 1/4" Upcut   )
+(Material: 12.7mm / 0.5" thick     )
+(Hole center: X0 Y0                )
+(===================================)
+
+G21        (millimeter mode)
+G90        (absolute positioning)
+G17        (XY plane)
+
+M3 S18000  (spindle on at 18000 RPM)
+G4 P3      (wait 3 sec for spindle to spin up)
+
+(--- MOVE TO ROUGHING START ---)
+G0 Z5
+G0 X6.625 Y0        (0.2mm inside finish wall)
+
+(--- ROUGHING PASSES - helical, 2mm steps ---)
+G1 Z0 F500
+G3 X6.625 Y0 Z-2    I-6.625 J0 F1000
+G3 X6.625 Y0 Z-4    I-6.625 J0 F1000
+G3 X6.625 Y0 Z-6    I-6.625 J0 F1000
+G3 X6.625 Y0 Z-8    I-6.625 J0 F1000
+G3 X6.625 Y0 Z-10   I-6.625 J0 F1000
+G3 X6.625 Y0 Z-12   I-6.625 J0 F1000
+G3 X6.625 Y0 Z-12.7 I-6.625 J0 F1000
+G3 X6.625 Y0        I-6.625 J0 F1000  (cleanup at full depth)
+
+(--- MOVE TO FINISHING RADIUS ---)
+G0 Z5
+G0 X6.825 Y0        (exact 20mm finish radius)
+
+(--- FINISHING PASS - one clean pass at full depth ---)
+G1 Z-12.7 F500
+G3 X6.825 Y0 I-6.825 J0 F800
+
+(--- DONE ---)
+G0 Z5
+G0 X0 Y0
+M5         (spindle off)
+M30        (program end)
