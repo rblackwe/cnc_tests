@@ -1,0 +1,73 @@
+%
+O0001
+; THE BEAST - 5 Test Holes, 0.501" to 0.505" Diameter, 0.1" Deep
+; Feed Rate: 100 in/min | Plunge: 80 in/min | Spindle: 22000 RPM
+; Holes spaced 1" apart in X
+
+G20        ; Inches mode
+G90        ; Absolute mode
+G91        ; Relative positioning
+S22000     ; Spindle speed
+M3         ; Spindle ON
+G4 P2      ; Dwell 2 seconds - let spindle spin up
+
+; --- HOLE 1 - 0.501" diameter (tool path radius 0.1255") ---
+F80
+G1 Z-0.1
+F100
+G1 X0.1255
+G2 I-0.1255 J0
+G1 X-0.1255
+F80
+G1 Z0.1    ; Lift to travel
+F100
+G1 X1.0   ; Move to next hole
+
+; --- HOLE 2 - 0.502" diameter (tool path radius 0.126") ---
+F80
+G1 Z-0.1
+F100
+G1 X0.126
+G2 I-0.126 J0
+G1 X-0.126
+F80
+G1 Z0.1
+F100
+G1 X1.0
+
+; --- HOLE 3 - 0.503" diameter (tool path radius 0.1265") ---
+F80
+G1 Z-0.1
+F100
+G1 X0.1265
+G2 I-0.1265 J0
+G1 X-0.1265
+F80
+G1 Z0.1
+F100
+G1 X1.0
+
+; --- HOLE 4 - 0.504" diameter (tool path radius 0.127") ---
+F80
+G1 Z-0.1
+F100
+G1 X0.127
+G2 I-0.127 J0
+G1 X-0.127
+F80
+G1 Z0.1
+F100
+G1 X1.0
+
+; --- HOLE 5 - 0.505" diameter (tool path radius 0.1275") ---
+F80
+G1 Z-0.1
+F100
+G1 X0.1275
+G2 I-0.1275 J0
+G1 X-0.1275
+
+M5         ; Spindle OFF
+G90        ; Return to absolute positioning
+M30        ; End program and rewind
+%
